@@ -4,7 +4,7 @@ It's the basic cropping script for the outdated JavaScript framework with a stup
 
 ## TODO
 
-- implement moving the crop box
+- add options for ratio, etc
 - add control handles
 - add "matteing" like photoshop (darken non-cropped areas)
 
@@ -12,3 +12,5 @@ It's the basic cropping script for the outdated JavaScript framework with a stup
 
 + get it working on IE (thanks [Kx5] and jabis on FreeNode#mootools!) (Jan 27 09)
 + initial version (Safari, Chrome, FF) (Jan 27 09)
++ split crop div into its own class (Jan 28 09)
++ implement moving the crop box

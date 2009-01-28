@@ -3,9 +3,12 @@
 <html>
     <head>
         <title>Cropping Test</title>
-        
 
 <style type="text/css" media="screen">
+    body {
+        margin: 0;
+        padding: 1em;
+    }
     label {
         display: block;
         float: left;
@@ -17,7 +20,7 @@
 <script type="text/javascript" src="croperator.js"></script>
 <script type="text/javascript" charset="utf-8">
     window.addEvent('domready', function() {
-        new Croperator('test-crop-img', 'crop-form');
+        new Croperator('test-crop-img', {form: 'crop-form'});
         document.ondragstart = function () { return false; };
     });
 </script>
