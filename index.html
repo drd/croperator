@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+    "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <title>Cropping Test</title>
+        
+
+<style type="text/css" media="screen">
+    label {
+        display: block;
+        float: left;
+        width: 10em;
+    }
+</style>
+
+<script type="text/javascript" src="mootools-release-1.11.js"></script>
+<script type="text/javascript" src="croperator.js"></script>
+<script type="text/javascript" charset="utf-8">
+    window.addEvent('domready', function() {
+        new Croperator('test-crop-img', 'crop-form');
+        document.ondragstart = function () { return false; };
+    });
+</script>
+</head>
+<body>
+    
+<div id="test-crop">
+<img id="test-crop-img" alt="" src="pacifice.jpg">
+</div>
+
+<form id="crop-form" action="foo.cfm">
+    <p><label>x1</label> <input type="text" name="x1"><br>
+    <p><label>y1</label> <input type="text" name="y1"></p>
+    <p><label>x2</label> <input type="text" name="x2"><br>
+    <p><label>y2</label> <input type="text" name="y2"></p>
+    <p><label>width</label> <input type="text" name="width"><br>
+    <p><label>height</label> <input type="text" name="height"></p>
+</form>
+
+<p id="data"></p>
+
+<p>
+    <a href="http://validator.w3.org/check?uri=referer"><img
+        src="http://www.w3.org/Icons/valid-html401-blue"
+        alt="Valid HTML 4.01 Strict" height="31" width="88"></a>
+  </p>
+
+</body>
+</html>
