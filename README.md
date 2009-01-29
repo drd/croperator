@@ -4,13 +4,13 @@ It's the basic cropping script for the outdated JavaScript framework with a stup
 
 ## TODO
 
-- add options for ratio, etc
 - add control handles
-- add "matteing" like photoshop (darken non-cropped areas)
 
 ## DONE
 
 + get it working on IE (thanks [Kx5] and jabis on FreeNode#mootools!) (Jan 27 09)
 + initial version (Safari, Chrome, FF) (Jan 27 09)
 + split crop div into its own class (Jan 28 09)
-+ implement moving the crop box
++ implement moving the crop box (Jan 28 09)
++ add options for ratio, etc (Jan 29 09)
++ add "matting" like photoshop (darken non-cropped areas) (Jan 29 09)
