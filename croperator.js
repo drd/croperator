@@ -96,6 +96,7 @@ var Croperator = new Class({
         this.cropEnd = [];
     },
     drawCrop: function() {
+        var x1, x2, y1, y2, width, height;
         var adjustMinX = false, adjustMinY = false;
         
         if (Math.abs(this.cropStart.x - this.cropEnd.x) < this.minSizeX) {
@@ -142,14 +143,15 @@ var Croperator = new Class({
             }
         }
 
+        width = x2 - x1;
+
         if (this.cropEnd.y >= this.cropStart.y) {
-            // quadrant 1 or 2
+            // quadrant 3 or 4
             
             if (adjustMinY) {
                 this.cropEnd.y = this.cropStart.y + this.minSizeY;
             }
 
-            // quadrant 2
             if (this.cropStart.y > this.coords.height - this.minSizeY) {
                 y1 = this.coords.height - Math.floor(this.minSizeY);
                 y2 = this.coords.height;
@@ -158,16 +160,28 @@ var Croperator = new Class({
                 y2 = this.minSizeY;
             } else {
                 y1 = this.cropStart.y;
-                y2 = this.cropEnd.y;
+                y2 = this.cropStart.y + width * this.ratio;
+                
+                if (y2 > this.coords.height) {
+                    y2 = this.coords.height;
+                    height = y2 - y1;
+                    width = (Math.ceil(height / this.ratio))
+                    
+                    if(this.cropEnd.x > this.cropStart.x) {
+                        x2 = x1 + width;
+                    } else {
+                        x1 = x2 - width;
+                    }
+                }
+                
             } 
         } else {
-            // quadrant 3 or 4
+            // quadrant 1 or 2
             
             if (adjustMinY) {
                 this.cropEnd.y = this.cropStart.y - this.minSizeY;
             }
             
-            // quadrant 3
             if (this.cropEnd.y > this.coords.height - this.minSizeY) {
                 y1 = this.coords.height - Math.floor(this.minSizeY);
                 y2 = this.coords.height;
@@ -175,12 +189,22 @@ var Croperator = new Class({
                 y1 = 0;
                 y2 = this.minSizeY;
             } else {
-                y1 = this.cropEnd.y;
+                y1 = this.cropStart.y - Math.floor(width * this.ratio);
                 y2 = this.cropStart.y;
+                
+                if (y1 < 0) {
+                    y1 = 0;
+                    height = y2 - y1;
+                    width = (Math.ceil(height / this.ratio))
+                    
+                    if(this.cropEnd.x > this.cropStart.x) {
+                        x2 = x1 + width;
+                    } else {
+                        x1 = x2 - width;
+                    }
+                }
             } 
         }
-        
-        width = x2 - x1;
         height = y2 - y1;
                 
         this.updateCoords({
@@ -195,8 +219,6 @@ var Croperator = new Class({
     updateCoords: function(coords) {
         this.cropCoords = this.cropCoords.merge(coords);
         this.updateForm();
-        
-        console.log("coords: " + this.cropCoords.values().join(' '));
         
         this.cropDiv.update(this.cropCoords);
     },
