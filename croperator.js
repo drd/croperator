@@ -247,12 +247,39 @@ var CropDiv = new Class({
             }
         });
         
+        this.createMatte();
+        
         this.div.injectBefore(this.croperator.image);
         $(this.div.parentNode).setStyle('position', 'relative');
         
         this.div.addEvent('mousedown', this.mouseDownHandler.bindWithEvent(this));
         $(document.body).addEvent('mousemove', this.mouseMoveHandler.bindWithEvent(this));
         $(document.body).addEvent('mouseup', this.mouseUpHandler.bindWithEvent(this));
+    },
+    createMatte: function() {
+        var matteStyles = {
+            'background-color': 'black',
+            'z-index': 99,
+            position: 'absolute',
+            opacity: 0.5
+        }
+        
+        this.matteLeft = new Element('div', {
+            styles: matteStyles
+        })
+        this.matteRight = new Element('div', {
+            styles: matteStyles
+        })
+        this.matteTop = new Element('div', {
+            styles: matteStyles
+        })
+        this.matteBottom = new Element('div', {
+            styles: matteStyles
+        })
+        
+        $A([this.matteLeft, this.matteRight, this.matteTop, this.matteBottom]).each(function(el) {
+            el.injectBefore(this.croperator.image);
+        }.bind(this))
     },
     update: function(coords) {
         this.x = coords.get('x1'); 
@@ -266,6 +293,34 @@ var CropDiv = new Class({
             top:    this.y,
             width:  this.width - 2,
             height: this.height - 2
+        });
+        
+        this.updateMatte();
+    },
+    updateMatte: function() {
+        this.matteLeft.setStyles({
+            left: 0,
+            top: 0,
+            width: this.x,
+            height: this.croperator.coords.height
+        });
+        this.matteRight.setStyles({
+            left: this.x + this.width,
+            top: 0,
+            width: this.croperator.coords.width - this.x - this.width,
+            height: this.croperator.coords.height
+        });
+        this.matteTop.setStyles({
+            left: this.x,
+            top: 0,
+            width: this.width,
+            height: this.y
+        });
+        this.matteBottom.setStyles({
+            left: this.x,
+            top: this.y + this.height,
+            width: this.width,
+            height: this.croperator.coords.height - this.y - this.height
         });
     },
     mouseDownHandler: function(ev) {
