@@ -20,12 +20,16 @@
 <script type="text/javascript" src="croperator.js"></script>
 <script type="text/javascript" charset="utf-8">
     window.addEvent('domready', function() {
-        new Croperator('test-crop-img', {form: 'crop-form'});
+        new Croperator('test-crop-img', {form: 'crop-form', ratio: {x: 300, y: 200}});
         document.ondragstart = function () { return false; };
     });
 </script>
 </head>
 <body>
+
+<h1>Crop Away!</h1>
+
+<p>Please click and drag for your cropping enjoyment. Once the marquee appears, you can drag it around too!</p>
     
 <div id="test-crop">
 <img id="test-crop-img" alt="" src="pacifice.jpg">

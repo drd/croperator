@@ -14,9 +14,16 @@ var Croperator = new Class({
     initialize: function(img, options) {
         this.setOptions(options);
 
-        this.minSize = this.options.minSize;
         this.form = this.options.form ? $(this.options.form) : null;
-
+        
+        this.minSizeX = this.minSize = this.options.minSize;
+        if(this.options.ratio) {
+            this.ratio = this.options.ratio.y / this.options.ratio.x;
+            this.minSizeY = this.minSize * this.ratio;
+        } else {
+            this.minSizeY = this.minSizeX;
+        }
+        
         this.inCrop = false;
 
         this.cropStart = [];
@@ -32,23 +39,23 @@ var Croperator = new Class({
     mouseMoveHandler: function(ev) {
         if(!this.inCrop) return;
         
-        this.cropEnd.x = ev.client.x + window.getScrollLeft() - this.coords.left;
-        this.cropEnd.y = ev.client.y + window.getScrollTop() - this.coords.top;
+        this.cropEnd.x = Util.clamp(ev.client.x + window.getScrollLeft() - this.coords.left, 0, this.coords.width);
+        this.cropEnd.y = Util.clamp(ev.client.y + window.getScrollTop() - this.coords.top, 0, this.coords.height);
         
         this.drawCrop();
     },
     mouseDownHandler: function(ev) {
         this.coords = this.image.getCoordinates();
         
-        var x = ev.client.x;
-        var y = ev.client.y;
+        var x = ev.client.x + window.getScrollLeft();
+        var y = ev.client.y + window.getScrollTop();
 
         if (x > this.coords.left && x < this.coords.right && y > this.coords.top && y < this.coords.bottom) {
             if(this.inCrop) {
                 this.mouseUpHandler(ev)
             } else {
-                x += window.getScrollLeft() - this.coords.left;
-                y += window.getScrollTop() - this.coords.top;
+                x -= this.coords.left;
+                y -= this.coords.top;
 
                 this.initCrop(x, y);
                 $(document.body).addEvent('mousemove', this.mouseMoveHandler.bindWithEvent(this));
@@ -63,29 +70,16 @@ var Croperator = new Class({
         this.cropStart.x = x;
         this.cropStart.y = y;
         
+        this.cropEnd.x = x;
+        this.cropEnd.y = y;
+        
         this.initializeCropDiv();
     },
     initializeCropDiv: function() {
-        var x = this.cropStart.x, y = this.cropStart.y;
-        
         if(this.cropDiv == null)
             this.createCropDiv();
 
-        x = Util.clamp(x, 0, this.coords.width);
-        y = Util.clamp(y, 0, this.coords.height);
-        
-        if ( x > this.coords.width - this.minSize )
-            x -= (this.coords.width - x + this.minSize);
-
-        if ( y > this.coords.width - this.minSize )
-            y -= (this.coords.width - y + this.minSize);
-        
-        this.updateCoords({
-            x1:     x,
-            y1:     y,
-            width:  this.minSize,
-            height: this.minSize
-        })
+        this.drawCrop();
     },
     createCropDiv: function() {
         this.cropDiv = new CropDiv(this);
@@ -102,39 +96,93 @@ var Croperator = new Class({
         this.cropEnd = [];
     },
     drawCrop: function() {
-        x1 = this.cropStart.x < this.cropEnd.x ? this.cropStart.x : this.cropEnd.x;
-        y1 = this.cropStart.y < this.cropEnd.y ? this.cropStart.y : this.cropEnd.y;
+        var adjustMinX = false, adjustMinY = false;
         
-        x1 = Util.clamp(x1, 0, this.coords.width);
-        y1 = Util.clamp(y1, 0, this.coords.height);
+        if (Math.abs(this.cropStart.x - this.cropEnd.x) < this.minSizeX) {
+            adjustMinX = true
+        }
 
-        x2 = this.cropStart.x > this.cropEnd.x ? this.cropStart.x : this.cropEnd.x;
-        y2 = this.cropStart.y > this.cropEnd.y ? this.cropStart.y : this.cropEnd.y;
-        
-        x2 = Util.clamp(x2, 0, this.coords.width);
-        y2 = Util.clamp(y2, 0, this.coords.height);
+        if (Math.abs(this.cropStart.y - this.cropEnd.y) < this.minSizeY) {
+            adjustMinY = true
+        }
 
-        // width  = Util.clamp(Math.abs(x1 - x2), this.minSize, this.coords.width - x1 - 2);
-        // height = Util.clamp(Math.abs(y1 - y2), this.minSize, this.coords.height - y1 - 2);
-        // 
-        // if (this.coords.width - x1 > this.minSize) {
-        //     x2 = x1;
-        //     x1 = x2 - this.minSize;
-        // } else {
-        //     x2 = x1 + width;
-        // }
-        // 
-        // 
-        // if (this.coords.height - y1 > this.minSize) {
-        //     y2 = y1;
-        //     y1 = y2 - this.minSize;
-        // } else {
-        //     y2 = y2 + height;
-        // }
+        if (this.cropEnd.x >= this.cropStart.x) {
+            // quadrant 1 or 4
+            
+            if (adjustMinX) {
+                this.cropEnd.x = this.cropStart.x + this.minSizeX;
+            }
+            
+            if (this.cropStart.x > this.coords.width - this.minSizeX) {
+                x1 = this.coords.width - this.minSizeX;
+                x2 = this.coords.width;
+            } else if (this.cropEnd.x < this.minSizeX) {
+                x1 = 0;
+                x2 = this.minSizeX;
+            } else {
+                x1 = this.cropStart.x;
+                x2 = this.cropEnd.x;
+            }
+        } else {
+            // quadrant 2 or 3
+            
+            if (adjustMinX) {
+                this.cropEnd.x = this.cropStart.x - this.minSizeX;
+            }
+
+            if (this.cropEnd.x > this.coords.width - this.minSizeX) {
+                x1 = this.coords.width - this.minSizeX;
+                x2 = this.coords.width;
+            } else if (this.cropStart.x < this.minSizeX) {
+                x1 = 0;
+                x2 = this.minSizeX;
+            } else {
+                x1 = this.cropEnd.x;
+                x2 = this.cropStart.x;
+            }
+        }
+
+        if (this.cropEnd.y >= this.cropStart.y) {
+            // quadrant 1 or 2
+            
+            if (adjustMinY) {
+                this.cropEnd.y = this.cropStart.y + this.minSizeY;
+            }
+
+            // quadrant 2
+            if (this.cropStart.y > this.coords.height - this.minSizeY) {
+                y1 = this.coords.height - Math.floor(this.minSizeY);
+                y2 = this.coords.height;
+            } else if (this.cropEnd.y < this.minSizeY) {
+                y1 = 0;
+                y2 = this.minSizeY;
+            } else {
+                y1 = this.cropStart.y;
+                y2 = this.cropEnd.y;
+            } 
+        } else {
+            // quadrant 3 or 4
+            
+            if (adjustMinY) {
+                this.cropEnd.y = this.cropStart.y - this.minSizeY;
+            }
+            
+            // quadrant 3
+            if (this.cropEnd.y > this.coords.height - this.minSizeY) {
+                y1 = this.coords.height - Math.floor(this.minSizeY);
+                y2 = this.coords.height;
+            } else if (this.cropStart.y < this.minSizeY) {
+                y1 = 0;
+                y2 = this.minSizeY;
+            } else {
+                y1 = this.cropEnd.y;
+                y2 = this.cropStart.y;
+            } 
+        }
         
-        width = Math.abs(x1 - x2);
-        height = Math.abs(y1 - y2);
-        
+        width = x2 - x1;
+        height = y2 - y1;
+                
         this.updateCoords({
             x1: x1,
             y1: y1,
@@ -143,12 +191,10 @@ var Croperator = new Class({
             width: width,
             height: height
         });
-
-        
-        this.updateForm();
     },
     updateCoords: function(coords) {
         this.cropCoords = this.cropCoords.merge(coords);
+        this.updateForm();
         
         console.log("coords: " + this.cropCoords.values().join(' '));
         
