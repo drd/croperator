@@ -24,6 +24,7 @@ var Croperator = new Class({
             this.minSizeY = this.minSizeX;
         }
         
+        this.exists = false;
         this.inCrop = false;
 
         this.cropStart = [];
@@ -57,14 +58,26 @@ var Croperator = new Class({
                 x -= this.coords.left;
                 y -= this.coords.top;
 
-                this.initCrop(x, y);
-                $(document.body).addEvent('mousemove', this.mouseMoveHandler.bindWithEvent(this));
-                $(document.body).addEvent('mouseup',   this.mouseUpHandler.bindWithEvent(this));
-                new Event(ev).stop();
+                if(this.pointInBounds(x, y)) {
+                    this.cropDiv.mouseDownHandler(ev);
+                } else {
+                    this.initCrop(x, y);
+                    $(document.body).addEvent('mousemove', this.mouseMoveHandler.bindWithEvent(this));
+                    $(document.body).addEvent('mouseup',   this.mouseUpHandler.bindWithEvent(this));
+                    new Event(ev).stop();
+                }
             }
         }
     },
+    pointInBounds: function(x, y) {
+        return this.exists && 
+            x > this.cropCoords.get('x1') && 
+            x < this.cropCoords.get('x2') && 
+            y > this.cropCoords.get('y1') &&
+            y < this.cropCoords.get('y2')
+    },
     initCrop: function(x, y) {
+        this.exists = true;
         this.inCrop = true;
         
         this.cropStart.x = x;
@@ -358,6 +371,8 @@ var CropDiv = new Class({
         this.croperator.updateCoords({
             x1: this.preDrag.x + this.delta.x,
             y1: this.preDrag.y + this.delta.y,
+            x2: this.preDrag.x + this.delta.x + this.width,
+            y2: this.preDrag.y + this.delta.y + this.height,
             width: this.width,
             height: this.height
         })

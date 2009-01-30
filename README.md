@@ -8,9 +8,18 @@ It's the basic cropping script for the outdated JavaScript framework with a stup
 
 ## DONE
 
-+ get it working on IE (thanks [Kx5] and jabis on FreeNode#mootools!) (Jan 27 09)
-+ initial version (Safari, Chrome, FF) (Jan 27 09)
-+ split crop div into its own class (Jan 28 09)
-+ implement moving the crop box (Jan 28 09)
-+ add options for ratio, etc (Jan 29 09)
-+ add "matting" like photoshop (darken non-cropped areas) (Jan 29 09)
+Jan 29 09
+
++ add options for ratio, etc
++ add "matting" like photoshop (darken non-cropped areas)
++ mostly fix dragging in IE (have to pass mousedown events to cropDiv because it doesn't receive them directly)
+
+Jan 28 09
+
++ split crop div into its own class
++ implement moving the crop box
+
+Jan 27 09
+
++ get it working on IE (thanks [Kx5] and jabis on FreeNode#mootools!)
++ initial version (Safari, Chrome, FF)
